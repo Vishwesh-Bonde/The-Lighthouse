@@ -384,6 +384,48 @@
     </div>
   </section>
 
+  <!-- Reviews Section -->
+  <section class="reviews-section" id="reviews">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">Guest Experiences</span>
+        <h2 class="section-title">Customer Reviews</h2>
+      </div>
+ 
+      <!-- Reviews display -->
+      <div class="reviews-grid" id="reviews-grid"></div>
+ 
+      <!-- Submit form -->
+      <div class="review-form-wrapper">
+        <h3 class="review-form-heading">Share Your Experience</h3>
+        <form id="review-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="review-name">Your Name</label>
+              <input type="text" id="review-name" placeholder="Jane Smith" required>
+            </div>
+            <div class="form-group">
+              <label>Rating</label>
+              <div class="star-input" id="star-input">
+                <button type="button" class="star-btn" data-value="1">&#9733;</button>
+                <button type="button" class="star-btn" data-value="2">&#9733;</button>
+                <button type="button" class="star-btn" data-value="3">&#9733;</button>
+                <button type="button" class="star-btn" data-value="4">&#9733;</button>
+                <button type="button" class="star-btn" data-value="5">&#9733;</button>
+              </div>
+              <input type="hidden" id="review-rating" value="0">
+            </div>
+          </div>
+          <div class="form-group full-width">
+            <label for="review-text">Your Review</label>
+            <textarea id="review-text" rows="4" placeholder="Tell us about your visit..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-full">Submit Review</button>
+          <p id="review-msg" class="form-note" style="display:none;"></p>
+        </form>
+      </div>
+    </div>
+  </section>
   <!-- Location Section -->
   <section class="location" id="location">
     <div class="container">

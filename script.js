@@ -229,3 +229,122 @@ window.addEventListener('resize', () => {
     closeMobileMenu();
   }
 });
+
+
+// ── Reviews (localStorage) ────────────────────────────────────────────────
+
+const STORAGE_KEY = 'lighthouse_reviews';
+
+// Default reviews so section is never empty on first visit
+const defaultReviews = [];
+
+function getReviews() {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored) return JSON.parse(stored);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultReviews));
+  return defaultReviews;
+}
+
+function saveReviews(reviews) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews));
+}
+
+// Permanent review — always shows first, cannot be removed
+const pinnedReview = {
+  name: 'Rasshi Srivastav',
+  rating: 5,
+  text: 'Absolutely loved the food and ambience! Every dish was crafted with such care and the atmosphere was warm and elegant. A truly memorable dining experience — will definitely be coming back!',
+  date: '14 May 2026'
+};
+
+function renderReviews() {
+  const grid = document.getElementById('reviews-grid');
+  if (!grid) return;
+
+  const userReviews = getReviews();
+
+  // Pinned review always at top, user reviews below
+  const allReviews = [pinnedReview, ...userReviews];
+
+  grid.innerHTML = allReviews.map(r => `
+    <div class="review-card">
+      <div class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+      <p class="review-text">${r.text}</p>
+      <div class="review-author">
+        <div class="review-avatar">${r.name.slice(0, 2).toUpperCase()}</div>
+        <div>
+          <span class="review-name">${r.name}</span>
+          <span class="review-date">${r.date}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Star rating widget
+let selectedRating = 0;
+const starBtns = document.querySelectorAll('#star-input .star-btn');
+
+starBtns.forEach(btn => {
+  btn.addEventListener('mouseenter', () => {
+    const val = +btn.dataset.value;
+    starBtns.forEach(s => s.classList.toggle('active', +s.dataset.value <= val));
+  });
+  btn.addEventListener('mouseleave', () => {
+    starBtns.forEach(s => s.classList.toggle('active', +s.dataset.value <= selectedRating));
+  });
+  btn.addEventListener('click', () => {
+    selectedRating = +btn.dataset.value;
+    document.getElementById('review-rating').value = selectedRating;
+    starBtns.forEach(s => s.classList.toggle('active', +s.dataset.value <= selectedRating));
+  });
+});
+
+// Form submit
+const reviewForm = document.getElementById('review-form');
+const reviewMsg  = document.getElementById('review-msg');
+
+if (reviewForm) {
+  reviewForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    if (!selectedRating) {
+      reviewMsg.textContent = 'Please select a star rating.';
+      reviewMsg.style.color = '#c94a4a';
+      reviewMsg.style.display = 'block';
+      return;
+    }
+
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+
+    const newReview = {
+      id: Date.now(),
+      name: document.getElementById('review-name').value.trim(),
+      rating: selectedRating,
+      text: document.getElementById('review-text').value.trim(),
+      date: dateStr
+    };
+
+    const reviews = getReviews();
+    reviews.unshift(newReview);
+    saveReviews(reviews);
+    renderReviews();
+
+    // Reset
+    reviewForm.reset();
+    selectedRating = 0;
+    document.getElementById('review-rating').value = 0;
+    starBtns.forEach(s => s.classList.remove('active'));
+
+    reviewMsg.textContent = 'Thank you for your review!';
+    reviewMsg.style.color = '#4a9c6a';
+    reviewMsg.style.display = 'block';
+    setTimeout(() => { reviewMsg.style.display = 'none'; }, 3000);
+
+    document.getElementById('reviews-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
+// Init
+renderReviews();
