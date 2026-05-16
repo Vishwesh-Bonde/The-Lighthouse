@@ -944,6 +944,7 @@ h1, h2, h3, h4 {
     position: fixed;
     top: 0;
     right: -100%;
+    opacity: 0;
     width: 80%;
     max-width: 320px;
     height: 100vh;
@@ -952,13 +953,24 @@ h1, h2, h3, h4 {
     justify-content: center;
     align-items: center;
     gap: 32px;
-    transition: right var(--transition);
+    transition: right 0.4s ease, opacity 0.4s ease; 
   }
 
   .nav-menu.active {
     right: 0;
+    opacity: 1;
+  }
+  .nav-menu.active .nav-link {
+    animation: slideIn 0.3s ease forwards;
   }
 
+  .nav-menu.active li:nth-child(1) { animation-delay: 0.1s; }
+  .nav-menu.active li:nth-child(2) { animation-delay: 0.2s; }
+  .nav-menu.active li:nth-child(3) { animation-delay: 0.3s; }
+  .nav-menu.active li:nth-child(4) { animation-delay: 0.4s; }
+  .nav-menu.active li:nth-child(5) { animation-delay: 0.5s; }
+
+  
   .nav-toggle {
     display: flex;
     z-index: 1001;
@@ -1011,7 +1023,10 @@ h1, h2, h3, h4 {
     height: 350px;
   }
 }
-
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
 @media (max-width: 480px) {
   .section-title {
     font-size: 2rem;
