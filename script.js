@@ -9,11 +9,46 @@ const heroBg = document.getElementById('heroBg');
 const reservationBg = document.getElementById('reservationBg');
 const reservationForm = document.getElementById('reservationForm');
 const dateInput = document.getElementById('date');
+const timeSelect = document.getElementById('time');
 
-// Set minimum date to today for reservation
 if (dateInput) {
   const today = new Date().toISOString().split('T')[0];
   dateInput.setAttribute('min', today);
+  
+  dateInput.addEventListener('change', updateAvailableTimes);
+}
+
+// Update available time slots based on current time
+function updateAvailableTimes() {
+  if (!dateInput || !timeSelect) return;
+
+  const selectedDate = dateInput.value;
+  const today = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const currentHours = now.getHours();
+  const currentMinutes = now.getMinutes();
+
+  const options = timeSelect.querySelectorAll('option');
+
+  options.forEach(option => {
+    if (option.value === "") return;
+
+    const [optionHours, optionMinutes] = option.value.split(':').map(Number);
+
+    if (selectedDate === today) {
+      // Disable if time is in the past (with a 30 min buffer)
+      if (optionHours < currentHours || (optionHours === currentHours && optionMinutes <= currentMinutes + 30)) {
+        option.disabled = true;
+        if (option.selected) {
+          timeSelect.value = "";
+        }
+      } else {
+        option.disabled = false;
+      }
+    } else {
+      option.disabled = false;
+    }
+  });
 }
 
 // Navigation scroll effect
@@ -221,6 +256,7 @@ if (reservationForm) {
 document.addEventListener('DOMContentLoaded', () => {
   handleScroll();
   setupIntersectionObserver();
+  updateAvailableTimes();
 });
 
 // Close mobile menu on window resize
@@ -348,3 +384,20 @@ if (reviewForm) {
 
 // Init
 renderReviews();
+//BackToTop
+const backToTopBtn = document.getElementById("backToTop");
+
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 200) {
+    backToTopBtn.style.display = "block";
+  } else {
+    backToTopBtn.style.display = "none";
+  }
+});
+
+backToTopBtn.addEventListener("click", () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+});
