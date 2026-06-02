@@ -117,6 +117,26 @@ h4 {
   color: var(--color-text);
 }
 
+body.light-theme .hero .btn-outline {
+  color: #f5f2ed;
+  border-color: #f5f2ed;
+}
+
+body.light-theme .hero .btn-outline:hover {
+  background-color: #8a6e2f;
+  border-color: #8a6e2f;
+  color: #ffffff;
+}
+
+/* Improve reservation section readability in light mode */
+
+body.light-theme .reservation .section-title,
+body.light-theme .reservation .reservation-info p,
+body.light-theme .reservation .detail-item strong,
+body.light-theme .reservation .detail-item span {
+  color: #f5f2ed;
+}
+
 .btn-outline:hover {
   background-color: var(--color-text);
   color: var(--color-bg);
@@ -257,6 +277,34 @@ body.light-theme .nav-cta {
 body.light-theme .nav-cta:hover {
   background-color: #8a6e2f;
   color: #fff;
+}
+
+/* Improve navbar visibility over hero image in light mode */
+body.light-theme .nav:not(.scrolled) .nav-link {
+  color: #f5f2ed;
+}
+
+body.light-theme .nav:not(.scrolled) .nav-logo {
+  color: #f5f2ed;
+}
+
+body.light-theme .nav:not(.scrolled) .nav-cta {
+  color: #f5f2ed;
+  border-color: #f5f2ed;
+}
+
+/* Fix hero text visibility in light mode */
+body.light-theme .hero-title {
+  color: #f5f2ed;
+}
+
+body.light-theme .hero-subtitle {
+  color: rgba(245, 242, 237, 0.9);
+}
+
+body.light-theme .hero-scroll span,
+body.light-theme .clicktoscroll {
+  color: rgba(245, 242, 237, 0.85);
 }
 
 .theme-toggle {
