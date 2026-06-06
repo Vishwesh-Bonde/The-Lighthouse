@@ -12,6 +12,30 @@ Designed with elegant dark aesthetics, immersive visuals, smooth animations, and
 
 ---
 
+## 📑 Table of Contents
+
+- [🌊 The Lighthouse](#-the-lighthouse--fine-dining-restaurant-website)
+- [✨ Features](#-features)
+  - [🎨 Premium UI & Branding](#-premium-ui--branding)
+  - [📋 Dynamic Menu System](#-dynamic-menu-system)
+  - [📱 Fully Responsive Design](#-fully-responsive-design)
+  - [⚡ Smooth User Experience](#-smooth-user-experience)
+  - [🗓️ Reservation Features](#%EF%B8%8F-reservation-features)
+  - [📍 Google Maps Integration](#-google-maps-integration)
+  - [📸 Website Assets](#-website-assets)
+- [🛠️ Tech Stack](#️%EF%B8%8F-tech-stack)
+- [📂 Project Structure](#-project-structure)
+- [🚀 Getting Started](#-getting-started)
+- [🎨 Customization](#-customization)
+- [🌟 Future Improvements](#-future-improvements)
+- [🤝 Contributing](#-contributing)
+- [📜 License](#-license)
+- [💖 Acknowledgements](#-acknowledgements)
+- [⭐ Support](#-support)
+- [🔗 Repository](#-repository)
+
+---
+
 # ✨ Features
 
 ## 🎨 Premium UI & Branding
