@@ -292,6 +292,7 @@ body.light-theme .nav-cta:hover {
   position: absolute;
   inset: 0;
   z-index: -2;
+  will-change: transform;
 }
 
 .hero-bg img {
@@ -676,12 +677,14 @@ body.light-theme .nav-cta:hover {
   position: relative;
   padding: 120px 0;
   overflow: hidden;
+  
 }
 
 .reservation-bg {
   position: absolute;
   inset: 0;
   z-index: -2;
+  will-change: transform;
 }
 
 .reservation-bg img {
