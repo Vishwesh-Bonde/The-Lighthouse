@@ -176,7 +176,7 @@ body.light-theme .reservation .detail-item span {
   font-family: var(--font-serif);
   font-size: 1.5rem;
   font-weight: 500;
-  color: var(--color-primary);
+  color: #c9a962; /* Golden accent color for dark mode */
 }
 
 .nav-menu {
