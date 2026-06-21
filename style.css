@@ -1504,36 +1504,14 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 
 
 /* Responsive Design */
-@media (max-width: 1024px) {
-  .about-grid,
-  .menu-grid,
-  .reservation-content,
-  .location-grid {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  }
-
-  .about-image img {
-    height: 400px;
-  }
-
-  .menu-image {
-    position: static;
-  }
-
-  .menu-image img {
-    height: 350px;
-  }
-}
-
 @media (max-width: 768px) {
   .nav-menu {
     position: fixed;
     top: 0;
     right: -100%;
     opacity: 0;
-    width: 80%;
-    max-width: 320px;
+    width: 100%; /* Changed from 80% to cover the whole screen */
+    /* max-width: 320px; Removed so it doesn't leave a gap */
     height: 100vh;
     background-color: var(--color-bg);
     flex-direction: column;
@@ -1549,6 +1527,16 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     right: 0;
     opacity: 1;
   }
+  
+  /* Added: Fix text contrast when Light Mode is active */
+  body.light-theme .nav-menu .nav-link {
+    color: var(--color-text); 
+  }
+  body.light-theme .nav-menu .nav-link:hover,
+  body.light-theme .nav-menu .nav-link.active {
+    color: var(--color-primary);
+  }
+
   .nav-menu.active .nav-link {
     animation: slideIn 0.3s ease forwards;
   }
@@ -1621,6 +1609,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     height: 350px;
   }
 }
+
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -1631,6 +1620,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     transform: translateX(0);
   }
 }
+
 @media (max-width: 480px) {
   .section-title {
     font-size: 2rem;
@@ -1759,4 +1749,41 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 
 .diet-no-results.visible {
   display: block;
+}
+
+/* Mobile Menu Card Layout*/
+@media (max-width: 768px) {
+  .food-card {
+    display: flex;
+    flex-direction: column; 
+    align-items: stretch;
+    background-color: var(--color-bg-card); 
+    border-radius: 8px; 
+    overflow: hidden;
+  }
+
+  .food-image {
+    width: 100%;
+    height: 220px; /
+    object-fit: cover;
+  }
+
+  .food-content {
+    padding: 16px; 
+  }
+  
+  .menu-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .nav-menu.active .nav-link {
+    color: var(--color-text) !important;
+  }
+
+  .nav-menu.active .nav-link.active,
+  .nav-menu.active .nav-link:hover {
+    color: var(--color-primary) !important;
+  }
 }
