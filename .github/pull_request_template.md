@@ -1,8 +1,3 @@
-# Pull Request
-
-Thank you for contributing to **The Lighthouse**! 🌊
-
-Please complete the sections below to help streamline the review process.
 
 ---
 
