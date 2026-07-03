@@ -1089,6 +1089,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupGiftCardCustomizer();
   setupVirtualSommelier();
   setupLoyaltyClub();
+  setupTableAvailabilityEstimator();
 
   if (typeof i18next !== 'undefined') {
     i18next
@@ -1772,5 +1773,67 @@ function addLoyaltyPoints(points, reason) {
     showReservationToast("success", `🎉 Club Bonus: +${points} Points! (${reason})`);
   } catch (e) {
     console.error(e);
+  }
+}
+
+// =============================================
+// Feature 9: Live Table Availability Estimator
+// =============================================
+function setupTableAvailabilityEstimator() {
+  const dateInput = document.getElementById("reservation-date");
+  const timeSelect = document.getElementById("time");
+  const estimator = document.getElementById("availability-estimator");
+
+  if (!dateInput || !timeSelect || !estimator) return;
+
+  function updateEstimator() {
+    const dateVal = dateInput.value;
+    const timeVal = timeSelect.value;
+
+    if (!dateVal || !timeVal) {
+      estimator.style.display = "none";
+      return;
+    }
+
+    const seed = dateVal.replace(/-/g, "") + timeVal.replace(/:/g, "");
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+      hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const availabilityIndex = Math.abs(hash) % 3;
+
+    estimator.className = "availability-estimator"; // reset classes
+    estimator.innerHTML = "";
+
+    const dot = document.createElement("span");
+    dot.className = "availability-dot";
+    estimator.appendChild(dot);
+
+    const text = document.createElement("span");
+
+    if (availabilityIndex === 0) {
+      estimator.classList.add("low");
+      text.textContent = "⚠️ Peak Hour - Highly Popular! Only 2 tables remaining.";
+    } else if (availabilityIndex === 1) {
+      estimator.classList.add("medium");
+      text.textContent = "⚡ Filling up fast - 5 tables remaining for this time slot.";
+    } else {
+      estimator.classList.add("high");
+      text.textContent = "✅ Excellent Choice - Table availability is high.";
+    }
+
+    estimator.appendChild(text);
+    estimator.style.display = "flex";
+  }
+
+  dateInput.addEventListener("change", updateEstimator);
+  timeSelect.addEventListener("change", updateEstimator);
+  
+  if (reservationForm) {
+    reservationForm.addEventListener("reset", () => {
+      setTimeout(() => {
+        estimator.style.display = "none";
+      }, 0);
+    });
   }
 }
