@@ -1089,6 +1089,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupGiftCardCustomizer();
   setupVirtualSommelier();
   setupLoyaltyClub();
+  setupFaqAccordion();
 
   if (typeof i18next !== 'undefined') {
     i18next
@@ -1773,4 +1774,24 @@ function addLoyaltyPoints(points, reason) {
   } catch (e) {
     console.error(e);
   }
+}
+
+// =============================================
+// Feature 6: Interactive FAQ Accordion
+// =============================================
+function setupFaqAccordion() {
+  const faqQuestions = document.querySelectorAll(".faq-question");
+  faqQuestions.forEach(question => {
+    question.addEventListener("click", () => {
+      const item = question.parentElement;
+      const isActive = item.classList.contains("active");
+      
+      // Close all other items
+      document.querySelectorAll(".faq-item").forEach(el => el.classList.remove("active"));
+      
+      if (!isActive) {
+        item.classList.add("active");
+      }
+    });
+  });
 }
