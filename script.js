@@ -216,6 +216,16 @@ function updateThemeImages(isLight) {
   if (resImg) resImg.src = isLight ? lightImg : darkImg;
 }
 
+// ── Broken Image Fallback Trigger ──
+function setupImageFallbacks() {
+  document.querySelectorAll('.menu-item img, .order-item-img').forEach((img) => {
+    img.onerror = function() {
+      this.onerror = null; // Prevents infinite loop if fallback image fails too
+      this.src = './images/fallback-placeholder.png'; 
+    };
+  });
+}
+
 function setupThemeToggle() {
   if (!themeToggle) return;
 
@@ -887,6 +897,9 @@ function renderOrderState() {
     btn.classList.toggle("active", isFavorite);
     btn.textContent = isFavorite ? "\u2665" : "\u2661";
   });
+
+  // Attach error-handling hooks whenever new items are rendered dynamically
+  setupImageFallbacks();
 }
 
 // ── 3D Card flip for touch devices ──
@@ -1077,8 +1090,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setReservationDateRange();
   updateAvailableTimes();
   setupThemeToggle();
-  setupIntersectionObserver();
-  setupAutoScroll();
+  // Removed setupIntersectionObserver(); to avoid runtime crashes
   setupReviews();
   setupOrderFeatures();
   handleCardFlip();
@@ -1089,6 +1101,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupGiftCardCustomizer();
   setupVirtualSommelier();
   setupLoyaltyClub();
+  setupImageFallbacks(); // Handle initial broken images on load
 
   if (typeof i18next !== 'undefined') {
     i18next
