@@ -49,6 +49,25 @@ body {
   overflow-x: hidden;
 }
 
+/* Scroll Progress Bar */
+.scroll-progress-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: transparent;
+  z-index: 2000;
+  pointer-events: none;
+}
+.scroll-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: var(--color-primary);
+  box-shadow: 0 0 8px var(--color-primary);
+  transition: width 0.1s ease-out;
+}
+
 img {
   max-width: 100%;
   height: auto;
@@ -484,39 +503,32 @@ body.light-theme .nav.scrolled .nav-logo {
   transition: all var(--transition);
 }
 
-.theme-toggle-icon {
+.theme-toggle svg {
   position: absolute;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   width: 20px;
   height: 20px;
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.theme-toggle-icon svg {
-  width: 20px;
-  height: 20px;
-}
-
-.theme-toggle-icon-sun {
+.theme-toggle .sun-icon {
   opacity: 0;
-  transform: scale(0.75) rotate(-35deg);
+  transform: rotate(-90deg) scale(0.6);
 }
 
-.theme-toggle-icon-moon {
+.theme-toggle .moon-icon {
   opacity: 1;
-  transform: scale(1) rotate(0deg);
+  transform: rotate(0deg) scale(1);
 }
 
-body.light-theme .theme-toggle-icon-moon {
+/* Light Theme toggle state */
+body.light-theme .theme-toggle .sun-icon {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+body.light-theme .theme-toggle .moon-icon {
   opacity: 0;
-  transform: scale(0.75) rotate(35deg);
-}
-
-body.light-theme .theme-toggle-icon-sun {
-  opacity: 1;
-  transform: scale(1) rotate(0deg);
+  transform: rotate(90deg) scale(0.6);
 }
 
 .theme-toggle:hover {
@@ -704,11 +716,11 @@ body.light-theme .theme-toggle:hover {
 
 .hero-subtitle {
   font-size: 1.125rem;
-  color: #9a958e;
-  /* Enforce light muted color over the dark background overlay across all themes */
+  /* WCAG AA: raised from #9a958e (~3.5:1) to #ccc6bc (~6:1) over the dark overlay */
+  color: #ccc6bc;
   margin-bottom: 40px;
   font-style: italic;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.65);
 }
 
 .hero-buttons {
@@ -742,9 +754,11 @@ body.light-theme .hero-overlay {
 
 body.light-theme .hero-scroll span,
 body.light-theme .clicktoscroll {
-  color: #f7f6f5;
+  /* Light theme: use bright white with a dark shadow so it reads over the
+     lighter overlay — the opposite of the default white-on-white glow */
+  color: #ffffff;
   font-weight: 600;
-  text-shadow: 0 1px 8px rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55), 0 2px 16px rgba(0, 0, 0, 0.35);
 }
 
 body.light-theme .scroll-indicator {
@@ -771,14 +785,18 @@ body.light-theme .scroll-arrow {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 2px;
-  color: var(--color-text-muted);
+  /* WCAG AA: raised from --color-text-muted (#9a958e) to near-white cream */
+  color: #e8e2d9;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
 }
 
 .scroll-indicator {
-  width: 1px;
+  /* Widened from 1px → 2px for better visibility */
+  width: 2px;
   height: 40px;
-  background: linear-gradient(to bottom, var(--color-primary), transparent);
+  background: linear-gradient(to bottom, var(--color-primary), rgba(201, 169, 98, 0.15));
   animation: scrollPulse 2s infinite;
+  border-radius: 2px;
 }
 
 .hero-scroll:hover span {
@@ -792,7 +810,9 @@ body.light-theme .scroll-arrow {
   font-size: 1.5rem;
   letter-spacing: 1px;
   margin-top: -0.8rem;
-  color: var(--color-text-muted);
+  /* WCAG AA: raised from --color-text-muted (#9a958e) to a warm cream */
+  color: #d4c9b8;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
   text-transform: none !important;
 }
 
@@ -3955,6 +3975,81 @@ body.light-theme .newsletter-form input {
   color: #ffffff;
   border-radius: 2px;
   padding: 0 1px;
+/* FAQ Section Styles */
+.faq-section {
+  padding: 80px 0;
+  background-color: var(--color-bg-lighter);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.faq-accordion {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.faq-item {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: var(--color-bg-card);
+  overflow: hidden;
+  transition: border-color var(--transition);
+}
+
+.faq-item:hover {
+  border-color: var(--color-primary);
+}
+
+.faq-question {
+  width: 100%;
+  padding: 20px 24px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  color: var(--color-text);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  transition: color var(--transition);
+}
+
+.faq-question:hover {
+  color: var(--color-primary);
+}
+
+.faq-icon {
+  font-size: 1.5rem;
+  color: var(--color-primary);
+  transition: transform var(--transition);
+}
+
+.faq-item.active .faq-icon {
+  transform: rotate(45deg);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--transition), padding var(--transition);
+  padding: 0 24px;
+}
+
+.faq-item.active .faq-answer {
+  max-height: 200px;
+  padding-bottom: 20px;
+}
+
+.faq-answer p {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
 

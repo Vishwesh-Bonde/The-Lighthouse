@@ -223,6 +223,78 @@ function setupThemeToggle() {
   });
 }
 
+// ── Scroll effects & Parallax ──
+function handleScroll() {
+  const currentScroll = window.scrollY;
+
+  // Scroll Progress Bar Update
+  const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = totalHeight > 0 ? (currentScroll / totalHeight) * 100 : 0;
+  const progressBar = document.getElementById("scrollProgressBar");
+  if (progressBar) {
+    progressBar.style.width = `${progress}%`;
+  }
+
+  if (nav) {
+    nav.classList.toggle("scrolled", currentScroll > 50);
+  }
+
+  if (!isTouchDevice) {
+    if (heroBg) {
+      heroBg.style.transform = `translateY(${currentScroll * 0.5}px)`;
+    }
+    const reservationSection = document.getElementById("reservation");
+    if (reservationBg && reservationSection && currentScroll > window.innerHeight) {
+      const offset = (currentScroll - reservationSection.offsetTop) * 0.3;
+      reservationBg.style.transform = `translateY(${offset}px)`;
+    }
+  }
+
+  if (backToTopBtn) {
+    backToTopBtn.classList.toggle("visible", currentScroll > 300);
+  }
+
+  updateActiveNavLink();
+}
+
+function updateActiveNavLink() {
+  const sections = document.querySelectorAll('section[id]');
+  const scrollPosition = window.scrollY + 150;
+
+  sections.forEach((section) => {
+    const sectionTop = section.offsetTop;
+    const sectionHeight = section.offsetHeight;
+    const sectionId = section.getAttribute('id');
+
+    if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+      const hasLink = Array.from(navLinks).some((link) => link.dataset.section === sectionId);
+      if (!hasLink) return;
+      navLinks.forEach((link) => {
+        link.classList.remove('active');
+        if (link.getAttribute('data-section') === sectionId) {
+          link.classList.add('active');
+        }
+      });
+    }
+  });
+}
+
+// ── Mobile menu ──
+function toggleMobileMenu() {
+  if (!navToggle || !navMenu) return;
+  navToggle.classList.toggle('active');
+  navMenu.classList.toggle('active');
+  document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
+}
+
+function closeMobileMenu() {
+  if (!navToggle || !navMenu) return;
+  navToggle.classList.remove('active');
+  navMenu.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// ── Menu Tabs and Filtering ──
 // =============================================
 // MENU FILTERING & TABS
 // =============================================
@@ -1263,6 +1335,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupVirtualSommelier();
   setupLoyaltyClub();
   setupSearchSuggestions();
+  setupFaqAccordion();
 
   if (typeof i18next !== 'undefined') {
     i18next
@@ -1869,6 +1942,21 @@ function setupSearchSuggestions() {
     chip.addEventListener("click", () => {
       searchInput.value = chip.dataset.query;
       searchInput.dispatchEvent(new Event("input"));
+// Feature 6: Interactive FAQ Accordion
+// =============================================
+function setupFaqAccordion() {
+  const faqQuestions = document.querySelectorAll(".faq-question");
+  faqQuestions.forEach(question => {
+    question.addEventListener("click", () => {
+      const item = question.parentElement;
+      const isActive = item.classList.contains("active");
+      
+      // Close all other items
+      document.querySelectorAll(".faq-item").forEach(el => el.classList.remove("active"));
+      
+      if (!isActive) {
+        item.classList.add("active");
+      }
     });
   });
 }
