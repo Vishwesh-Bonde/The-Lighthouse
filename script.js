@@ -328,6 +328,13 @@ function getActiveDiet() {
 function filterMenuItems(filter = 'all', searchText = '', diet = 'all') {
   const menuItems = document.querySelectorAll('.menu-item');
   let visibleCount = 0;
+  const searchText = menuSearch ? menuSearch.value.trim().toLowerCase() : "";
+
+  menuItems.forEach((item) => {
+    const h3 = item.querySelector('h3');
+    const itemName = h3 ? h3.textContent.toLowerCase() : "";
+    const category = item.dataset.category || "";
+    const type = item.dataset.type || item.dataset.diet || "all";
   const searchLower = searchText.toLowerCase();
 
   menuItems.forEach((item) => {
@@ -338,6 +345,19 @@ function filterMenuItems(filter = 'all', searchText = '', diet = 'all') {
     const matchesSearch = itemName.includes(searchLower);
     const matchesFilter = filter === 'all' || category === filter;
     const matchesDiet = diet === 'all' || itemDiet === diet;
+
+    if (h3) {
+      if (!h3.dataset.original) {
+        h3.dataset.original = h3.innerHTML;
+      }
+      const originalText = h3.dataset.original;
+      if (searchText) {
+        const regex = new RegExp(`(${searchText})`, 'gi');
+        h3.innerHTML = originalText.replace(regex, '<span class="search-highlight">$1</span>');
+      } else {
+        h3.innerHTML = originalText;
+      }
+    }
 
     // Use both class manipulation (from HEAD) and display toggle (from main) for robustness
     if (matchesSearch && matchesFilter && matchesDiet) {
@@ -650,6 +670,7 @@ async function handleFormSubmit(e) {
         showReservationToast('success', `Reservation confirmed for ${selectedTable}! Check your email for details.`);
         addLoyaltyPoints(100, "Table Reservation");
         showDigitalTicket(formData.guest_name, formData.booking_date, formData.booking_time, formData.guest_count, selectedTable);
+        showReservationSuccessModal(dateVal, timeVal, guestsVal);
         showReservationToast('success', `Reservation confirmed for ${selectedTable || formData.guest_count + ' guest(s)'}! Check your email for details.`);
         if (typeof addLoyaltyPoints === 'function') addLoyaltyPoints(100, "Table Reservation");
         reservationForm.reset();
@@ -670,6 +691,7 @@ async function handleFormSubmit(e) {
     showReservationToast('success', `Thank you, ${formData.guest_name}! We've registered your request for ${formData.guest_count} guest(s) at ${selectedTable} on ${formData.booking_date} at ${formData.booking_time}.`);
     addLoyaltyPoints(100, "Table Reservation");
     showDigitalTicket(formData.guest_name, formData.booking_date, formData.booking_time, formData.guest_count, selectedTable);
+    showReservationSuccessModal(dateVal, timeVal, guestsVal);
     showReservationToast('success', `Thank you, ${formData.guest_name}! We've registered your request for ${formData.guest_count} guest(s) at ${selectedTable || 'your table'} on ${formData.booking_date} at ${formData.booking_time}.`);
     if (typeof addLoyaltyPoints === 'function') addLoyaltyPoints(100, "Table Reservation");
     reservationForm.reset();
@@ -683,6 +705,7 @@ async function handleFormSubmit(e) {
       showReservationToast('success', `Thank you, ${formData.guest_name}! A confirmation for ${selectedTable} has been sent to ${formData.guest_email}.`);
       addLoyaltyPoints(100, "Table Reservation");
       showDigitalTicket(formData.guest_name, formData.booking_date, formData.booking_time, formData.guest_count, selectedTable);
+      showReservationSuccessModal(dateVal, timeVal, guestsVal);
       reservationForm.reset();
       updateAvailableTimes();
     } catch (err) {
@@ -1336,6 +1359,8 @@ document.addEventListener('DOMContentLoaded', () => {
   setupGiftCardCustomizer();
   setupVirtualSommelier();
   setupLoyaltyClub();
+  setupTableAvailabilityEstimator();
+  setupSearchSuggestions();
   setupFaqAccordion();
 
   if (typeof i18next !== 'undefined') {
@@ -1980,6 +2005,146 @@ document.addEventListener("DOMContentLoaded", () => {
       modal.style.display = "none";
     }
   });
+// Feature 9: Live Table Availability Estimator
+// =============================================
+function setupTableAvailabilityEstimator() {
+  const dateInput = document.getElementById("reservation-date");
+  const timeSelect = document.getElementById("time");
+  const estimator = document.getElementById("availability-estimator");
+
+  if (!dateInput || !timeSelect || !estimator) return;
+
+  function updateEstimator() {
+    const dateVal = dateInput.value;
+    const timeVal = timeSelect.value;
+
+    if (!dateVal || !timeVal) {
+      estimator.style.display = "none";
+      return;
+    }
+
+    const seed = dateVal.replace(/-/g, "") + timeVal.replace(/:/g, "");
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+      hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const availabilityIndex = Math.abs(hash) % 3;
+
+    estimator.className = "availability-estimator"; // reset classes
+    estimator.innerHTML = "";
+
+    const dot = document.createElement("span");
+    dot.className = "availability-dot";
+    estimator.appendChild(dot);
+
+    const text = document.createElement("span");
+
+    if (availabilityIndex === 0) {
+      estimator.classList.add("low");
+      text.textContent = "⚠️ Peak Hour - Highly Popular! Only 2 tables remaining.";
+    } else if (availabilityIndex === 1) {
+      estimator.classList.add("medium");
+      text.textContent = "⚡ Filling up fast - 5 tables remaining for this time slot.";
+    } else {
+      estimator.classList.add("high");
+      text.textContent = "✅ Excellent Choice - Table availability is high.";
+    }
+
+    estimator.appendChild(text);
+    estimator.style.display = "flex";
+  }
+
+  dateInput.addEventListener("change", updateEstimator);
+  timeSelect.addEventListener("change", updateEstimator);
+  
+  if (reservationForm) {
+    reservationForm.addEventListener("reset", () => {
+      setTimeout(() => {
+        estimator.style.display = "none";
+      }, 0);
+    });
+  }
+// Feature 10: Search Suggestions Handler
+// =============================================
+function setupSearchSuggestions() {
+  const chips = document.querySelectorAll(".suggestion-chip");
+  const searchInput = document.getElementById("menu-search");
+
+  if (!chips.length || !searchInput) return;
+
+  chips.forEach(chip => {
+    chip.addEventListener("click", () => {
+      searchInput.value = chip.dataset.query;
+      searchInput.dispatchEvent(new Event("input"));
+// Feature 9: Reservation Success & Calendar Integration
+// =============================================
+function showReservationSuccessModal(date, time, guests) {
+  const modal = document.getElementById("reservation-success-modal");
+  const dateEl = document.getElementById("summary-date");
+  const timeEl = document.getElementById("summary-time");
+  const guestsEl = document.getElementById("summary-guests");
+  const googleBtn = document.getElementById("googleCalBtn");
+  const icsBtn = document.getElementById("icsCalBtn");
+  const closeBtn = document.getElementById("closeSuccessModal");
+
+  if (!modal) return;
+
+  if (dateEl) dateEl.textContent = date;
+  if (timeEl) timeEl.textContent = time;
+  if (guestsEl) guestsEl.textContent = guests + " Guest(s)";
+
+  // Format Date for iCal / Google Cal
+  const startDateTime = new Date(`${date}T${time}:00`);
+  const finalStart = isNaN(startDateTime.getTime()) ? new Date() : startDateTime;
+  const finalEnd = new Date(finalStart.getTime() + 2 * 60 * 60 * 1000); // 2 hours
+
+  const formatTime = (dt) => dt.toISOString().replace(/-|:|\.\d\d\d/g, "");
+
+  // Google Calendar URL
+  const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Table+Reservation+-+The+Lighthouse&dates=${formatTime(finalStart)}/${formatTime(finalEnd)}&details=Table+reservation+confirmed+for+${guests}+guests.+We+look+forward+to+serving+you.&location=123+Harbor+View+Drive,+Coastal+City,+CA`;
+  
+  if (googleBtn) {
+    googleBtn.onclick = () => window.open(googleUrl, "_blank");
+  }
+
+  // iCalendar (.ics) Download
+  if (icsBtn) {
+    icsBtn.onclick = () => {
+      const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//The Lighthouse//NONSGML Table Reservation//EN
+BEGIN:VEVENT
+UID:${Date.now()}@thelighthouse.com
+DTSTAMP:${formatTime(new Date())}
+DTSTART:${formatTime(finalStart)}
+DTEND:${formatTime(finalEnd)}
+SUMMARY:Table Reservation - The Lighthouse
+DESCRIPTION:Table reservation confirmed for ${guests} guests.
+LOCATION:123 Harbor View Drive, Coastal City, CA
+END:VEVENT
+END:VCALENDAR`;
+
+      const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `lighthouse_reservation_${date}.ics`;
+      link.click();
+    };
+  }
+
+  if (closeBtn) {
+    closeBtn.onclick = () => {
+      modal.style.display = "none";
+    };
+  }
+
+  window.onclick = (e) => {
+    if (e.target === modal) {
+      modal.style.display = "none";
+    }
+  };
+
+  modal.style.display = "block";
 // Feature 11: Scroll Reveal & Autoplay
 // =============================================
 function setupIntersectionObserver() {

@@ -212,6 +212,13 @@
         <div class="menu-controls">
           <label for="menu-search" class="sr-only" data-i18n="menu.search_placeholder">Search Menu</label>
           <input type="text" id="menu-search" placeholder="Search dishes..." class="menu-search" data-i18n-placeholder="menu.search_placeholder" />
+          <div class="search-suggestions-container" style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; width: 100%;">
+            <span style="font-size: 0.8rem; color: var(--color-text-muted); align-self: center;">Popular:</span>
+            <button type="button" class="suggestion-chip" data-query="Biryani">Biryani</button>
+            <button type="button" class="suggestion-chip" data-query="Dosa">Dosa</button>
+            <button type="button" class="suggestion-chip" data-query="Paneer">Paneer</button>
+            <button type="button" class="suggestion-chip" data-query="Lassi">Lassi</button>
+          </div>
           
           <div class="menu-filters">
             <button class="filter-btn active" data-filter="all" data-i18n="menu.filter_all">All</button>
@@ -603,6 +610,7 @@
                 </select>
               </div>
             </div>
+            <div id="availability-estimator" class="availability-estimator" style="display: none; margin-bottom: 20px; width: 100%;"></div>
              <div class="form-group full-width">
                <label data-i18n="reservation.select_zone">Select Dining Zone</label>
                <div class="dining-zones" id="dining-zones">
@@ -1193,6 +1201,26 @@
         </div>
         <div style="text-align: center; margin-top: 20px;">
           <button type="button" class="btn btn-primary btn-sm" id="printTicketBtn">Print / Save Ticket</button>
+    <!-- Reservation Success Modal -->
+    <div id="reservation-success-modal" class="reservation-success-modal">
+      <div class="success-modal-content">
+        <span class="success-modal-close" id="closeSuccessModal">&times;</span>
+        <div class="success-header">
+          <div class="success-icon">✓</div>
+          <h3>Reservation Confirmed!</h3>
+          <p>We look forward to welcoming you to The Lighthouse.</p>
+        </div>
+        <div class="success-details">
+          <p><strong>Date:</strong> <span id="summary-date">-</span></p>
+          <p><strong>Time:</strong> <span id="summary-time">-</span></p>
+          <p><strong>Guests:</strong> <span id="summary-guests">-</span></p>
+        </div>
+        <div class="calendar-actions">
+          <h4>Add to your calendar:</h4>
+          <div class="calendar-buttons" style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+            <button type="button" class="btn btn-outline btn-sm" id="googleCalBtn">Google Calendar</button>
+            <button type="button" class="btn btn-outline btn-sm" id="icsCalBtn">iCalendar (.ics)</button>
+          </div>
         </div>
       </div>
     </div>
