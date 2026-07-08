@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Tooltip from './Tooltip';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -49,23 +50,29 @@ const Navbar = () => {
               )}
               <div className="navbar__user">
                 <span className="navbar__user-name">Hi, {user.name.split(' ')[0]}</span>
-                <button className="btn btn-ghost" onClick={handleLogout}>Logout</button>
+                <Tooltip content="Sign out of your account" position="bottom">
+                  <button className="btn btn-ghost" onClick={handleLogout}>Logout</button>
+                </Tooltip>
               </div>
             </>
           ) : (
-            <Link to="/auth" onClick={() => setMenuOpen(false)} className="btn btn-primary">
-              Sign In
-            </Link>
+            <Tooltip content="Sign in to your account" position="bottom">
+              <Link to="/auth" onClick={() => setMenuOpen(false)} className="btn btn-primary">
+                Sign In
+              </Link>
+            </Tooltip>
           )}
         </nav>
 
-        <button
-          className={`navbar__hamburger ${menuOpen ? 'open' : ''}`}
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle menu"
-        >
-          <span /><span /><span />
-        </button>
+        <Tooltip content="Toggle navigation menu" position="bottom">
+          <button
+            className={`navbar__hamburger ${menuOpen ? 'open' : ''}`}
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
+          >
+            <span /><span /><span />
+          </button>
+        </Tooltip>
       </div>
     </header>
   );

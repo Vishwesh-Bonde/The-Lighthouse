@@ -1,23 +1,38 @@
 import { Link } from 'react-router-dom';
+import Tooltip from './Tooltip';
 
 const Footer = () => (
   <footer className="footer">
     <div className="container footer__inner">
       <div className="footer__brand">
-        <span className="footer__logo">🌊 The Lighthouse</span>
+        <Tooltip content="The Lighthouse - Fine Dining Restaurant" position="top">
+          <span className="footer__logo">🌊 The Lighthouse</span>
+        </Tooltip>
         <p className="footer__tagline">Fine Dining. Reimagined.</p>
       </div>
 
       <div className="footer__links">
-        <Link to="/menu">Menu</Link>
-        <Link to="/reserve">Reservations</Link>
-        <Link to="/auth">Sign In</Link>
+        <Tooltip content="View our full menu" position="top">
+          <Link to="/menu">Menu</Link>
+        </Tooltip>
+        <Tooltip content="Book a table" position="top">
+          <Link to="/reserve">Reservations</Link>
+        </Tooltip>
+        <Tooltip content="Sign in to your account" position="top">
+          <Link to="/auth">Sign In</Link>
+        </Tooltip>
       </div>
 
       <div className="footer__info">
-        <p>📍 12, Marine Drive, Mumbai, 400001</p>
-        <p>📞 +91 98765 43210</p>
-        <p>⏰ Mon–Sun · 7 AM – 11 PM</p>
+        <Tooltip content="Visit us at Marine Drive, Mumbai" position="top">
+          <p>📍 12, Marine Drive, Mumbai, 400001</p>
+        </Tooltip>
+        <Tooltip content="Call us for reservations and inquiries" position="top">
+          <p>📞 +91 98765 43210</p>
+        </Tooltip>
+        <Tooltip content="Open 7 days a week, 7 AM to 11 PM" position="top">
+          <p>⏰ Mon–Sun · 7 AM – 11 PM</p>
+        </Tooltip>
       </div>
     </div>
 

@@ -4,6 +4,7 @@ import { useMenu } from '../context/MenuContext';
 import { getMenuItems, createMenuItem, deleteMenuItem } from '../api/menuApi';
 import { getReviews, deleteReview } from '../api/reviewApi';
 import MenuCard from '../components/MenuCard';
+import Tooltip from '../components/Tooltip';
 
 const CATEGORIES = ['breakfast', 'lunch', 'dinner', 'desserts', 'drinks'];
 
@@ -23,7 +24,6 @@ const AdminDashboard = () => {
   const [msg, setMsg] = useState('');
 
   useEffect(() => {
-    // Admin sees ALL items including unavailable
     fetchMenu({ showAll: 'true' });
     getReviews().then(({ data }) => setReviews(data.data));
   }, []);
@@ -86,38 +86,54 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* ── Stats ── */}
+        {/* Stats Cards with Tooltips */}
         <div className="admin-stats">
-          <div className="admin-stat-card">
-            <div className="admin-stat-number">{stats.total}</div>
-            <div className="admin-stat-label">Total Dishes</div>
-          </div>
-          <div className="admin-stat-card">
-            <div className="admin-stat-number" style={{ color: 'var(--color-success)' }}>{stats.available}</div>
-            <div className="admin-stat-label">Available Now</div>
-          </div>
-          <div className="admin-stat-card">
-            <div className="admin-stat-number" style={{ color: 'var(--color-text-muted)' }}>{stats.soldOut}</div>
-            <div className="admin-stat-label">Sold Out</div>
-          </div>
-          <div className="admin-stat-card">
-            <div className="admin-stat-number" style={{ color: 'var(--color-primary)' }}>{stats.reviews}</div>
-            <div className="admin-stat-label">Guest Reviews</div>
-          </div>
+          <Tooltip content="Total menu items in your restaurant" position="top">
+            <div className="admin-stat-card">
+              <div className="admin-stat-number">{stats.total}</div>
+              <div className="admin-stat-label">Total Dishes</div>
+            </div>
+          </Tooltip>
+          
+          <Tooltip content="Dishes available for ordering today" position="top">
+            <div className="admin-stat-card">
+              <div className="admin-stat-number" style={{ color: 'var(--color-success)' }}>{stats.available}</div>
+              <div className="admin-stat-label">Available Now</div>
+            </div>
+          </Tooltip>
+          
+          <Tooltip content="Dishes currently sold out" position="top">
+            <div className="admin-stat-card">
+              <div className="admin-stat-number" style={{ color: 'var(--color-text-muted)' }}>{stats.soldOut}</div>
+              <div className="admin-stat-label">Sold Out</div>
+            </div>
+          </Tooltip>
+          
+          <Tooltip content="Total guest reviews received" position="top">
+            <div className="admin-stat-card">
+              <div className="admin-stat-number" style={{ color: 'var(--color-primary)' }}>{stats.reviews}</div>
+              <div className="admin-stat-label">Guest Reviews</div>
+            </div>
+          </Tooltip>
         </div>
 
-        {/* ── Tabs ── */}
+        {/* Tabs with Tooltips */}
         <div className="admin-tabs">
-          {['menu', 'reviews'].map((t) => (
-            <button key={t} className={`admin-tab-btn ${activeTab === t ? 'active' : ''}`} onClick={() => setActiveTab(t)}>
-              {t === 'menu' ? '🍽️ Live Menu' : '⭐ Reviews'}
+          <Tooltip content="Manage your menu items" position="bottom">
+            <button className={`admin-tab-btn ${activeTab === 'menu' ? 'active' : ''}`} onClick={() => setActiveTab('menu')}>
+              🍽️ Live Menu
             </button>
-          ))}
+          </Tooltip>
+          <Tooltip content="Manage guest reviews" position="bottom">
+            <button className={`admin-tab-btn ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => setActiveTab('reviews')}>
+              ⭐ Reviews
+            </button>
+          </Tooltip>
         </div>
 
         {msg && <p className={`admin-msg ${msg.startsWith('✅') ? 'success' : 'error'}`}>{msg}</p>}
 
-        {/* ── Menu Tab ── */}
+        {/* Menu Tab */}
         {activeTab === 'menu' && (
           <div className="admin-menu-section">
             <div className="admin-section-header">
@@ -125,86 +141,109 @@ const AdminDashboard = () => {
                 Menu Items
                 <span className="admin-hint"> — toggle any dish's availability without touching code</span>
               </h2>
-              <button className="btn btn-primary" onClick={() => setShowAddForm(!showAddForm)}>
-                {showAddForm ? '✕ Cancel' : '+ Add Dish'}
-              </button>
+              <Tooltip content="Add a new dish to the menu" position="top">
+                <button className="btn btn-primary" onClick={() => setShowAddForm(!showAddForm)}>
+                  {showAddForm ? '✕ Cancel' : '+ Add Dish'}
+                </button>
+              </Tooltip>
             </div>
 
-            {/* Add form */}
+            {/* Add form with Tooltips */}
             {showAddForm && (
               <form className="admin-add-form glass" onSubmit={handleAddItem}>
                 <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', marginBottom: 'var(--space-lg)' }}>New Menu Item</h3>
                 <div className="admin-form-grid">
                   <div className="form-group">
                     <label className="form-label">Name *</label>
-                    <input className="form-input" name="name" value={form.name} onChange={handleFormChange} required placeholder="Dish name" />
+                    <Tooltip content="Enter the dish name" position="right">
+                      <input className="form-input" name="name" value={form.name} onChange={handleFormChange} required placeholder="Dish name" />
+                    </Tooltip>
                   </div>
                   <div className="form-group">
                     <label className="form-label">Category *</label>
-                    <select className="form-select" name="category" value={form.category} onChange={handleFormChange}>
-                      {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                    </select>
+                    <Tooltip content="Select dish category" position="right">
+                      <select className="form-select" name="category" value={form.category} onChange={handleFormChange}>
+                        {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                    </Tooltip>
                   </div>
                   <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                     <label className="form-label">Description *</label>
-                    <textarea className="form-textarea" name="description" value={form.description} onChange={handleFormChange} required rows={2} placeholder="Dish description" />
+                    <Tooltip content="Describe the dish ingredients and preparation" position="right">
+                      <textarea className="form-textarea" name="description" value={form.description} onChange={handleFormChange} required rows={2} placeholder="Dish description" />
+                    </Tooltip>
                   </div>
                   <div className="form-group">
                     <label className="form-label">Price (₹) *</label>
-                    <input className="form-input" type="number" name="price" value={form.price} onChange={handleFormChange} required min={0} />
+                    <Tooltip content="Set the dish price in rupees" position="right">
+                      <input className="form-input" type="number" name="price" value={form.price} onChange={handleFormChange} required min={0} />
+                    </Tooltip>
                   </div>
                   <div className="form-group">
                     <label className="form-label">Prep Time (min)</label>
-                    <input className="form-input" type="number" name="preparationTime" value={form.preparationTime} onChange={handleFormChange} min={1} />
+                    <Tooltip content="Estimated preparation time in minutes" position="right">
+                      <input className="form-input" type="number" name="preparationTime" value={form.preparationTime} onChange={handleFormChange} min={1} />
+                    </Tooltip>
                   </div>
                   <div className="form-group">
                     <label className="form-label">Image URL</label>
-                    <input className="form-input" name="image" value={form.image} onChange={handleFormChange} placeholder="/images/dish.jpg" />
+                    <Tooltip content="Enter URL for dish image" position="right">
+                      <input className="form-input" name="image" value={form.image} onChange={handleFormChange} placeholder="/images/dish.jpg" />
+                    </Tooltip>
                   </div>
                   <div className="form-group" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 'var(--space-md)' }}>
                     <label className="form-label" style={{ margin: 0 }}>Vegetarian</label>
-                    <label className="toggle-switch">
-                      <input type="checkbox" name="isVeg" checked={form.isVeg} onChange={handleFormChange} />
-                      <span className="toggle-slider" />
-                    </label>
+                    <Tooltip content={form.isVeg ? "Mark as vegetarian dish" : "Mark as non-vegetarian dish"} position="top">
+                      <label className="toggle-switch">
+                        <input type="checkbox" name="isVeg" checked={form.isVeg} onChange={handleFormChange} />
+                        <span className="toggle-slider" />
+                      </label>
+                    </Tooltip>
                   </div>
                   <div className="form-group" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 'var(--space-md)' }}>
                     <label className="form-label" style={{ margin: 0 }}>Available Now</label>
-                    <label className="toggle-switch">
-                      <input type="checkbox" name="isAvailable" checked={form.isAvailable} onChange={handleFormChange} />
-                      <span className="toggle-slider" />
-                    </label>
+                    <Tooltip content={form.isAvailable ? "Dish will be available to customers" : "Dish will be marked as sold out"} position="top">
+                      <label className="toggle-switch">
+                        <input type="checkbox" name="isAvailable" checked={form.isAvailable} onChange={handleFormChange} />
+                        <span className="toggle-slider" />
+                      </label>
+                    </Tooltip>
                   </div>
                   <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                     <label className="form-label">Tags</label>
                     <div style={{ display: 'flex', gap: 'var(--space-xs)', flexWrap: 'wrap' }}>
                       {['seasonal', 'chef-special', 'popular', 'new', 'spicy'].map((tag) => (
-                        <button key={tag} type="button" className={`allergen-chip ${form.tags.includes(tag) ? 'active' : ''}`}
-                          style={form.tags.includes(tag) ? { background: 'rgba(201,169,98,0.1)', borderColor: 'var(--color-primary)', color: 'var(--color-primary)' } : {}}
-                          onClick={() => handleTagToggle(tag)}>
-                          {tag}
-                        </button>
+                        <Tooltip key={tag} content={`Tag as ${tag.replace('-', ' ')}`} position="top">
+                          <button type="button" className={`allergen-chip ${form.tags.includes(tag) ? 'active' : ''}`}
+                            style={form.tags.includes(tag) ? { background: 'rgba(201,169,98,0.1)', borderColor: 'var(--color-primary)', color: 'var(--color-primary)' } : {}}
+                            onClick={() => handleTagToggle(tag)}>
+                            {tag}
+                          </button>
+                        </Tooltip>
                       ))}
                     </div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-md)', marginTop: 'var(--space-lg)', borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-lg)' }}>
-                  <button type="button" className="btn btn-ghost" onClick={() => setShowAddForm(false)}>Cancel</button>
-                  <button type="submit" className="btn btn-primary" disabled={saving}>
-                    {saving ? 'Saving...' : 'Add to Menu'}
-                  </button>
+                  <Tooltip content="Cancel and close the form" position="top">
+                    <button type="button" className="btn btn-ghost" onClick={() => setShowAddForm(false)}>Cancel</button>
+                  </Tooltip>
+                  <Tooltip content="Add this dish to your menu" position="top">
+                    <button type="submit" className="btn btn-primary" disabled={saving}>
+                      {saving ? 'Saving...' : 'Add to Menu'}
+                    </button>
+                  </Tooltip>
                 </div>
               </form>
             )}
 
-            {/* Menu grid — cards have admin toggle built in */}
             <div className="grid-3" style={{ paddingBottom: 'var(--space-3xl)' }}>
               {items.map((item) => <MenuCard key={item._id} item={item} />)}
             </div>
           </div>
         )}
 
-        {/* ── Reviews Tab ── */}
+        {/* Reviews Tab */}
         {activeTab === 'reviews' && (
           <div className="admin-reviews">
             {reviews.length === 0 ? (
@@ -224,9 +263,11 @@ const AdminDashboard = () => {
                       <span className="admin-review-date">{new Date(r.createdAt).toLocaleDateString()}</span>
                     </div>
                     <p className="admin-review-comment">"{r.comment}"</p>
-                    <button className="btn btn-ghost" style={{ color: 'var(--color-error)', borderColor: 'rgba(224,92,92,0.3)' }} onClick={() => handleDeleteReview(r._id)}>
-                      Delete
-                    </button>
+                    <Tooltip content="Delete this review permanently" position="top">
+                      <button className="btn btn-ghost" style={{ color: 'var(--color-error)', borderColor: 'rgba(224,92,92,0.3)' }} onClick={() => handleDeleteReview(r._id)}>
+                        Delete
+                      </button>
+                    </Tooltip>
                   </div>
                 ))}
               </div>

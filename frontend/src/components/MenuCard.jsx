@@ -2,6 +2,7 @@ import { toggleAvailability } from '../api/menuApi';
 import { useMenu } from '../context/MenuContext';
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
+import Tooltip from './Tooltip';
 
 const TAG_LABELS = {
   'seasonal':     { label: 'Seasonal', icon: '🍃' },
@@ -39,22 +40,27 @@ const MenuCard = ({ item }) => {
           className="menu-card__image"
           onError={(e) => { e.target.src = '/images/dinner.jpg'; }}
         />
-        {/* Live availability badge — the key differentiator */}
-        <div className={`menu-card__avail-badge ${item.isAvailable ? 'available' : 'sold-out'}`}>
-          <span className={`avail-dot ${item.isAvailable ? 'available' : 'unavailable'}`} />
-          {item.isAvailable ? 'Available' : 'Sold Out'}
-        </div>
+        
+        <Tooltip content={item.isAvailable ? "Available today" : "Sold out today"} position="top">
+          <div className={`menu-card__avail-badge ${item.isAvailable ? 'available' : 'sold-out'}`}>
+            <span className={`avail-dot ${item.isAvailable ? 'available' : 'unavailable'}`} />
+            {item.isAvailable ? 'Available' : 'Sold Out'}
+          </div>
+        </Tooltip>
 
-        {/* Veg / Non-veg indicator */}
-        <div className={`menu-card__diet-dot ${item.isVeg ? 'veg' : 'nonveg'}`} title={item.isVeg ? 'Vegetarian' : 'Non-Vegetarian'} />
+        <Tooltip content={item.isVeg ? 'Vegetarian dish' : 'Non-Vegetarian dish'} position="bottom">
+          <div className={`menu-card__diet-dot ${item.isVeg ? 'veg' : 'nonveg'}`} />
+        </Tooltip>
       </div>
 
       <div className="menu-card__body">
         <div className="menu-card__tags">
           {item.tags.map((tag) => (
-            <span key={tag} className="badge badge-gold">
-              {TAG_LABELS[tag]?.icon} {TAG_LABELS[tag]?.label || tag}
-            </span>
+            <Tooltip key={tag} content={`${TAG_LABELS[tag]?.label || tag} dish`} position="top">
+              <span className="badge badge-gold">
+                {TAG_LABELS[tag]?.icon} {TAG_LABELS[tag]?.label || tag}
+              </span>
+            </Tooltip>
           ))}
         </div>
 
@@ -63,24 +69,29 @@ const MenuCard = ({ item }) => {
 
         <div className="menu-card__footer">
           <span className="menu-card__price">₹{item.price}</span>
-          <span className="menu-card__time">⏱ {item.preparationTime} min</span>
+          <Tooltip content={`Preparation time: ${item.preparationTime} minutes`} position="top">
+            <span className="menu-card__time">⏱ {item.preparationTime} min</span>
+          </Tooltip>
         </div>
 
-        {/* Admin toggle switch */}
         {isAdmin && (
           <div className="menu-card__admin">
-            <span className="menu-card__admin-label">
-              {item.isAvailable ? 'Mark as Sold Out' : 'Mark as Available'}
-            </span>
-            <label className="toggle-switch">
-              <input
-                type="checkbox"
-                checked={item.isAvailable}
-                onChange={handleToggle}
-                disabled={toggling}
-              />
-              <span className="toggle-slider" />
-            </label>
+            <Tooltip content={item.isAvailable ? "Mark as sold out" : "Mark as available"} position="top">
+              <span className="menu-card__admin-label">
+                {item.isAvailable ? 'Mark as Sold Out' : 'Mark as Available'}
+              </span>
+            </Tooltip>
+            <Tooltip content="Toggle dish availability" position="top">
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={item.isAvailable}
+                  onChange={handleToggle}
+                  disabled={toggling}
+                />
+                <span className="toggle-slider" />
+              </label>
+            </Tooltip>
           </div>
         )}
       </div>
