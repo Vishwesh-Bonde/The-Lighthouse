@@ -4,6 +4,7 @@ import { getAvailableSlots, createReservation } from '../api/reservationApi';
 import { getTonightMenu } from '../api/menuApi';
 import { useAuth } from '../context/AuthContext';
 import MenuCard from '../components/MenuCard';
+import Tooltip from '../components/Tooltip';
 
 const STEPS = ['Date & Guests', 'Pick a Time', "Tonight's Menu", 'Confirm'];
 
@@ -15,19 +16,15 @@ const Reserve = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  // Step 1 state
   const [date, setDate] = useState('');
   const [guests, setGuests] = useState(2);
 
-  // Step 2 state
   const [slots, setSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState('');
 
-  // Step 3 state
   const [tonightMenu, setTonightMenu] = useState([]);
   const [loadingMenu, setLoadingMenu] = useState(false);
 
-  // Step 4 state
   const [specialRequests, setSpecialRequests] = useState('');
 
   const today = new Date().toISOString().split('T')[0];
@@ -47,7 +44,6 @@ const Reserve = () => {
     }
   };
 
-  // When entering step 2 -> also prefetch tonight's menu for step 3
   useEffect(() => {
     if (step === 1) {
       setLoadingMenu(true);
@@ -83,8 +79,12 @@ const Reserve = () => {
             A confirmation email will be sent shortly.
           </p>
           <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', marginTop: 'var(--space-xl)' }}>
-            <Link to="/menu" className="btn btn-outline">Explore the Menu</Link>
-            <Link to="/" className="btn btn-primary">Back to Home</Link>
+            <Tooltip content="Browse our full menu" position="top">
+              <Link to="/menu" className="btn btn-outline">Explore the Menu</Link>
+            </Tooltip>
+            <Tooltip content="Go back to home page" position="top">
+              <Link to="/" className="btn btn-primary">Back to Home</Link>
+            </Tooltip>
           </div>
         </div>
       </main>
@@ -102,14 +102,16 @@ const Reserve = () => {
           </div>
         </div>
 
-        {/* ── Step indicator ── */}
+        {/* Step indicators with Tooltips */}
         <div className="wizard-steps">
           {STEPS.map((label, i) => (
             <div key={i} className="step-item">
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                <div className={`step-circle ${i < step ? 'done' : i === step ? 'active' : ''}`}>
-                  {i < step ? '✓' : i + 1}
-                </div>
+                <Tooltip content={`Step ${i + 1}: ${label}`} position="bottom">
+                  <div className={`step-circle ${i < step ? 'done' : i === step ? 'active' : ''}`}>
+                    {i < step ? '✓' : i + 1}
+                  </div>
+                </Tooltip>
                 <span className={`step-label ${i < step ? 'done' : i === step ? 'active' : ''}`}>{label}</span>
               </div>
               {i < STEPS.length - 1 && <div className={`step-connector ${i < step ? 'done' : ''}`} />}
@@ -118,63 +120,80 @@ const Reserve = () => {
         </div>
 
         <div className="reserve-card glass">
-          {/* ── Step 0: Date & Guests ── */}
+          {/* Step 0: Date & Guests */}
           {step === 0 && (
             <div className="reserve-step">
               <h2 className="reserve-step__title">When are you joining us?</h2>
               <div className="reserve-step__fields">
                 <div className="form-group">
                   <label className="form-label">Date</label>
-                  <input className="form-input" type="date" value={date} min={today} onChange={(e) => setDate(e.target.value)} />
+                  <Tooltip content="Select your preferred dining date" position="right">
+                    <input className="form-input" type="date" value={date} min={today} onChange={(e) => setDate(e.target.value)} />
+                  </Tooltip>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Number of Guests</label>
-                  <select className="form-select" value={guests} onChange={(e) => setGuests(Number(e.target.value))}>
-                    {[1,2,3,4,5,6,7,8].map((n) => <option key={n} value={n}>{n} {n === 1 ? 'guest' : 'guests'}</option>)}
-                  </select>
+                  <Tooltip content="Select the number of guests joining you" position="right">
+                    <select className="form-select" value={guests} onChange={(e) => setGuests(Number(e.target.value))}>
+                      {[1,2,3,4,5,6,7,8].map((n) => <option key={n} value={n}>{n} {n === 1 ? 'guest' : 'guests'}</option>)}
+                    </select>
+                  </Tooltip>
                 </div>
               </div>
               {error && <p className="form-error">{error}</p>}
               <div className="reserve-step__actions">
-                <button className="btn btn-primary" onClick={fetchSlots} disabled={!date || loading}>
-                  {loading ? <span className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} /> : 'Check Availability →'}
-                </button>
+                <Tooltip content="Check available time slots for your selected date" position="top">
+                  <button className="btn btn-primary" onClick={fetchSlots} disabled={!date || loading}>
+                    {loading ? <span className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} /> : 'Check Availability →'}
+                  </button>
+                </Tooltip>
               </div>
             </div>
           )}
 
-          {/* ── Step 1: Time Slot ── */}
+          {/* Step 1: Time Slot */}
           {step === 1 && (
             <div className="reserve-step">
               <h2 className="reserve-step__title">Choose your time slot</h2>
               <p className="reserve-step__subtitle">{date} · {guests} guest{guests > 1 ? 's' : ''}</p>
               <div className="slots-grid">
                 {slots.map((slot) => (
-                  <button
-                    key={slot.time}
-                    className={`slot-btn ${!slot.available ? 'slot-btn--unavail' : ''} ${selectedSlot === slot.time ? 'slot-btn--selected' : ''}`}
-                    onClick={() => slot.available && setSelectedSlot(slot.time)}
-                    disabled={!slot.available}
+                  <Tooltip 
+                    key={slot.time} 
+                    content={slot.available ? `${slot.tablesAvailable} table${slot.tablesAvailable > 1 ? 's' : ''} available` : 'This slot is fully booked'}
+                    position="top"
                   >
-                    <span className="slot-time">{slot.time}</span>
-                    <span className="slot-status">{slot.available ? `${slot.tablesAvailable} table${slot.tablesAvailable > 1 ? 's' : ''} left` : 'Full'}</span>
-                  </button>
+                    <button
+                      className={`slot-btn ${!slot.available ? 'slot-btn--unavail' : ''} ${selectedSlot === slot.time ? 'slot-btn--selected' : ''}`}
+                      onClick={() => slot.available && setSelectedSlot(slot.time)}
+                      disabled={!slot.available}
+                    >
+                      <span className="slot-time">{slot.time}</span>
+                      <span className="slot-status">{slot.available ? `${slot.tablesAvailable} table${slot.tablesAvailable > 1 ? 's' : ''} left` : 'Full'}</span>
+                    </button>
+                  </Tooltip>
                 ))}
               </div>
               {error && <p className="form-error">{error}</p>}
               <div className="reserve-step__actions">
-                <button className="btn btn-ghost" onClick={() => setStep(0)}>← Back</button>
-                <button className="btn btn-primary" onClick={() => setStep(2)} disabled={!selectedSlot}>
-                  See Tonight's Menu →
-                </button>
+                <Tooltip content="Go back to select a different date" position="top">
+                  <button className="btn btn-ghost" onClick={() => setStep(0)}>← Back</button>
+                </Tooltip>
+                <Tooltip content="View tonight's available dishes before confirming" position="top">
+                  <button className="btn btn-primary" onClick={() => setStep(2)} disabled={!selectedSlot}>
+                    See Tonight's Menu →
+                  </button>
+                </Tooltip>
               </div>
             </div>
           )}
 
-          {/* ── Step 2: Tonight's Menu Preview — THE KEY DIFFERENTIATOR ── */}
+          {/* Step 2: Tonight's Menu Preview */}
           {step === 2 && (
             <div className="reserve-step">
-              <h2 className="reserve-step__title">Tonight's Available Menu</h2>
+              <Tooltip content="View tonight's available dishes before confirming your reservation" position="top">
+                <h2 className="reserve-step__title">Tonight's Available Menu</h2>
+              </Tooltip>
               <div className="tonight-label">
                 <span className="avail-dot available" />
                 <p className="reserve-step__subtitle">
@@ -187,31 +206,37 @@ const Reserve = () => {
               ) : (
                 <div className="tonight-grid">
                   {tonightMenu.slice(0, 6).map((item) => (
-                    <div key={item._id} className="tonight-item">
-                      <img
-                        src={item.image || '/images/dinner.jpg'}
-                        alt={item.name}
-                        onError={(e) => { e.target.src = '/images/dinner.jpg'; }}
-                      />
-                      <div className="tonight-item__info">
-                        <div className={`tonight-item__dot ${item.isVeg ? 'veg' : 'nonveg'}`} />
-                        <div>
-                          <p className="tonight-item__name">{item.name}</p>
-                          <p className="tonight-item__price">₹{item.price}</p>
+                    <Tooltip key={item._id} content={`${item.name} - ₹${item.price} · ${item.isVeg ? 'Vegetarian' : 'Non-Vegetarian'}`} position="top">
+                      <div className="tonight-item">
+                        <img
+                          src={item.image || '/images/dinner.jpg'}
+                          alt={item.name}
+                          onError={(e) => { e.target.src = '/images/dinner.jpg'; }}
+                        />
+                        <div className="tonight-item__info">
+                          <div className={`tonight-item__dot ${item.isVeg ? 'veg' : 'nonveg'}`} />
+                          <div>
+                            <p className="tonight-item__name">{item.name}</p>
+                            <p className="tonight-item__price">₹{item.price}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </Tooltip>
                   ))}
                 </div>
               )}
               <div className="reserve-step__actions">
-                <button className="btn btn-ghost" onClick={() => setStep(1)}>← Back</button>
-                <button className="btn btn-primary" onClick={() => setStep(3)}>Looks Good! Continue →</button>
+                <Tooltip content="Go back to select a different time slot" position="top">
+                  <button className="btn btn-ghost" onClick={() => setStep(1)}>← Back</button>
+                </Tooltip>
+                <Tooltip content="Proceed to confirm your reservation" position="top">
+                  <button className="btn btn-primary" onClick={() => setStep(3)}>Looks Good! Continue →</button>
+                </Tooltip>
               </div>
             </div>
           )}
 
-          {/* ── Step 3: Confirm ── */}
+          {/* Step 3: Confirm */}
           {step === 3 && (
             <div className="reserve-step">
               <h2 className="reserve-step__title">Confirm Your Reservation</h2>
@@ -228,14 +253,20 @@ const Reserve = () => {
               </div>
               <div className="form-group">
                 <label className="form-label">Special Requests (optional)</label>
-                <textarea className="form-textarea" placeholder="Dietary requirements, occasion, seating preferences..." value={specialRequests} onChange={(e) => setSpecialRequests(e.target.value)} rows={3} />
+                <Tooltip content="Add dietary requirements, occasion details, or seating preferences" position="right">
+                  <textarea className="form-textarea" placeholder="Dietary requirements, occasion, seating preferences..." value={specialRequests} onChange={(e) => setSpecialRequests(e.target.value)} rows={3} />
+                </Tooltip>
               </div>
               {error && <p className="form-error">{error}</p>}
               <div className="reserve-step__actions">
-                <button className="btn btn-ghost" onClick={() => setStep(2)}>← Back</button>
-                <button className="btn btn-primary" onClick={handleConfirm} disabled={!user || loading}>
-                  {loading ? <span className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} /> : 'Confirm Reservation ✓'}
-                </button>
+                <Tooltip content="Go back to view tonight's menu" position="top">
+                  <button className="btn btn-ghost" onClick={() => setStep(2)}>← Back</button>
+                </Tooltip>
+                <Tooltip content={user ? "Complete your reservation booking" : "Please sign in first"} position="top">
+                  <button className="btn btn-primary" onClick={handleConfirm} disabled={!user || loading}>
+                    {loading ? <span className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} /> : 'Confirm Reservation ✓'}
+                  </button>
+                </Tooltip>
               </div>
             </div>
           )}

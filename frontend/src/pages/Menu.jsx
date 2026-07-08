@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useMenu } from '../context/MenuContext';
 import MenuCard from '../components/MenuCard';
+import Tooltip from '../components/Tooltip';
 
 const CATEGORIES = ['all', 'breakfast', 'lunch', 'dinner', 'desserts', 'drinks'];
 const CATEGORY_ICONS = {
@@ -14,17 +15,15 @@ const Menu = () => {
   const { items, loading, error, fetchMenu } = useMenu();
 
   const [category, setCategory] = useState('all');
-  const [dietFilter, setDietFilter] = useState('all'); // 'all' | 'veg' | 'non-veg'
+  const [dietFilter, setDietFilter] = useState('all');
   const [search, setSearch] = useState('');
 
-  // Initialise dietary filter from user profile
   useEffect(() => {
     if (user?.dietaryPreference && user.dietaryPreference !== 'all') {
       setDietFilter(user.dietaryPreference);
     }
   }, [user]);
 
-  // Fetch menu (admin sees all items including unavailable)
   useEffect(() => {
     const params = {};
     if (user?.role === 'admin') params.showAll = 'true';
@@ -46,7 +45,6 @@ const Menu = () => {
 
   return (
     <main className="page-enter menu-page">
-      {/* ── Header ── */}
       <div className="menu-hero">
         <div className="container menu-hero__content">
           <span className="section-label">Our Kitchen</span>
@@ -61,46 +59,60 @@ const Menu = () => {
       </div>
 
       <div className="container">
-        {/* ── Controls ── */}
         <div className="menu-controls">
-          {/* Category tabs */}
           <div className="menu-tabs">
             {CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                className={`menu-tab ${category === cat ? 'menu-tab--active' : ''}`}
-                onClick={() => setCategory(cat)}
-              >
-                {CATEGORY_ICONS[cat]} {cat.charAt(0).toUpperCase() + cat.slice(1)}
-              </button>
+              <Tooltip key={cat} content={`Filter by ${cat} category`} position="bottom">
+                <button
+                  className={`menu-tab ${category === cat ? 'menu-tab--active' : ''}`}
+                  onClick={() => setCategory(cat)}
+                >
+                  {CATEGORY_ICONS[cat]} {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                </button>
+              </Tooltip>
             ))}
           </div>
 
-          {/* Dietary + search */}
           <div className="menu-filters">
             <div className="diet-toggle">
-              {['all', 'veg', 'non-veg'].map((d) => (
+              <Tooltip content="Show all dishes" position="bottom">
                 <button
-                  key={d}
-                  className={`diet-btn ${dietFilter === d ? 'diet-btn--active' : ''} ${d !== 'all' ? `diet-btn--${d.replace('-', '')}` : ''}`}
-                  onClick={() => setDietFilter(d)}
+                  className={`diet-btn ${dietFilter === 'all' ? 'diet-btn--active' : ''}`}
+                  onClick={() => setDietFilter('all')}
                 >
-                  {d === 'all' ? 'All' : d === 'veg' ? '🟢 Veg' : '🔴 Non-Veg'}
+                  All
                 </button>
-              ))}
+              </Tooltip>
+              <Tooltip content="Filter by vegetarian dishes" position="bottom">
+                <button
+                  className={`diet-btn ${dietFilter === 'veg' ? 'diet-btn--active' : ''} diet-btn--veg`}
+                  onClick={() => setDietFilter('veg')}
+                >
+                  🟢 Veg
+                </button>
+              </Tooltip>
+              <Tooltip content="Filter by non-vegetarian dishes" position="bottom">
+                <button
+                  className={`diet-btn ${dietFilter === 'non-veg' ? 'diet-btn--active' : ''} diet-btn--nonveg`}
+                  onClick={() => setDietFilter('non-veg')}
+                >
+                  🔴 Non-Veg
+                </button>
+              </Tooltip>
             </div>
-            <input
-              type="text"
-              className="form-input"
-              placeholder="Search dishes..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{ maxWidth: '260px' }}
-            />
+            <Tooltip content="Search for dishes by name or description" position="bottom">
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Search dishes..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{ maxWidth: '260px' }}
+              />
+            </Tooltip>
           </div>
         </div>
 
-        {/* ── Results count ── */}
         {!loading && (
           <p className="menu-count">
             {filtered.length} {filtered.length === 1 ? 'dish' : 'dishes'} found
@@ -110,7 +122,6 @@ const Menu = () => {
           </p>
         )}
 
-        {/* ── Menu grid ── */}
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
             <div className="spinner" />
@@ -118,14 +129,18 @@ const Menu = () => {
         ) : error ? (
           <div className="menu-error">
             <p>⚠️ {error}</p>
-            <button className="btn btn-outline" onClick={() => fetchMenu()}>Retry</button>
+            <Tooltip content="Retry fetching menu data" position="top">
+              <button className="btn btn-outline" onClick={() => fetchMenu()}>Retry</button>
+            </Tooltip>
           </div>
         ) : filtered.length === 0 ? (
           <div className="menu-empty">
             <p>🍽️ No dishes match your filters.</p>
-            <button className="btn btn-ghost" onClick={() => { setCategory('all'); setDietFilter('all'); setSearch(''); }}>
-              Clear filters
-            </button>
+            <Tooltip content="Reset all filters to see full menu" position="top">
+              <button className="btn btn-ghost" onClick={() => { setCategory('all'); setDietFilter('all'); setSearch(''); }}>
+                Clear filters
+              </button>
+            </Tooltip>
           </div>
         ) : (
           <div className="grid-3" style={{ paddingBottom: 'var(--space-3xl)' }}>

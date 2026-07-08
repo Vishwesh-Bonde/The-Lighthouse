@@ -4,6 +4,7 @@ import { getMenuItems } from '../api/menuApi';
 import { getReviews } from '../api/reviewApi';
 import MenuCard from '../components/MenuCard';
 import { useAuth } from '../context/AuthContext';
+import Tooltip from '../components/Tooltip';
 
 const Stars = ({ rating }) => (
   <div className="stars">
@@ -20,7 +21,6 @@ const Home = () => {
   const [loadingMenu, setLoadingMenu] = useState(true);
 
   useEffect(() => {
-    // Fetch featured (chef-special) dishes
     getMenuItems({ tag: 'chef-special' })
       .then(({ data }) => setFeatured(data.data.slice(0, 3)))
       .catch(console.error)
@@ -33,7 +33,7 @@ const Home = () => {
 
   return (
     <main className="page-enter">
-      {/* ── Hero ── */}
+      {/* Hero Section */}
       <section className="hero">
         <div className="hero__bg" style={{ backgroundImage: "url('/images/hero-restaurant.jpg')" }} />
         <div className="hero__overlay" />
@@ -47,10 +47,13 @@ const Home = () => {
             Fine dining with live menu availability — no surprises, only excellence.
           </p>
           <div className="hero__cta">
-            <Link to="/reserve" className="btn btn-primary">Reserve a Table</Link>
-            <Link to="/menu" className="btn btn-outline">Explore Menu</Link>
+            <Tooltip content="Book a table for your dining experience" position="top">
+              <Link to="/reserve" className="btn btn-primary">Reserve a Table</Link>
+            </Tooltip>
+            <Tooltip content="Explore our live menu with real-time availability" position="top">
+              <Link to="/menu" className="btn btn-outline">Explore Menu</Link>
+            </Tooltip>
           </div>
-          {/* The differentiator tagline */}
           <div className="hero__feature-pill">
             <span className="avail-dot available" />
             Live menu availability — know what's on tonight before you arrive
@@ -58,7 +61,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ── Problem / Solution Statement ── */}
+      {/* Problem / Solution Section */}
       <section className="section problem-section">
         <div className="container">
           <div className="problem-cards">
@@ -87,7 +90,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ── Chef's Specials (live from API) ── */}
+      {/* Chef's Specials */}
       <section className="section">
         <div className="container">
           <div className="section-header">
@@ -114,12 +117,14 @@ const Home = () => {
             <p style={{ textAlign: 'center', color: 'var(--color-text-muted)' }}>No specials available right now.</p>
           )}
           <div style={{ textAlign: 'center', marginTop: 'var(--space-xl)' }}>
-            <Link to="/menu" className="btn btn-outline">View Full Menu →</Link>
+            <Tooltip content="View all dishes on our full menu" position="top">
+              <Link to="/menu" className="btn btn-outline">View Full Menu →</Link>
+            </Tooltip>
           </div>
         </div>
       </section>
 
-      {/* ── Chef Section ── */}
+      {/* Chef Section */}
       <section className="section chef-section">
         <div className="container chef-inner">
           <div className="chef-image-wrap">
@@ -135,14 +140,16 @@ const Home = () => {
               With over two decades of culinary artistry, our executive chef crafts every dish from locally sourced, seasonal ingredients.
               The live menu reflects what's freshest today — not yesterday's printed card.
             </p>
-            <Link to="/reserve" className="btn btn-primary" style={{ marginTop: 'var(--space-lg)' }}>
-              Book Your Experience
-            </Link>
+            <Tooltip content="Book your dining experience with us" position="top">
+              <Link to="/reserve" className="btn btn-primary" style={{ marginTop: 'var(--space-lg)' }}>
+                Book Your Experience
+              </Link>
+            </Tooltip>
           </div>
         </div>
       </section>
 
-      {/* ── Reviews ── */}
+      {/* Reviews Section */}
       {reviews.length > 0 && (
         <section className="section">
           <div className="container">
@@ -171,7 +178,7 @@ const Home = () => {
         </section>
       )}
 
-      {/* ── CTA ── */}
+      {/* CTA Section */}
       <section className="section cta-section">
         <div className="container cta-inner">
           <span className="section-label">Reserve Your Evening</span>
@@ -179,14 +186,15 @@ const Home = () => {
           <p className="section-subtitle" style={{ margin: '1rem auto' }}>
             Check tonight's live menu, pick your time slot, and walk in knowing exactly what to expect.
           </p>
-          <Link to="/reserve" className="btn btn-primary" style={{ marginTop: 'var(--space-lg)' }}>
-            Make a Reservation
-          </Link>
+          <Tooltip content="Book your table for an unforgettable dining experience" position="top">
+            <Link to="/reserve" className="btn btn-primary" style={{ marginTop: 'var(--space-lg)' }}>
+              Make a Reservation
+            </Link>
+          </Tooltip>
         </div>
       </section>
 
       <style>{`
-        /* Hero */
         .hero { position: relative; min-height: 100vh; display: flex; align-items: center; overflow: hidden; }
         .hero__bg { position: absolute; inset: 0; background-size: cover; background-position: center; transform: scale(1.05); transition: transform 8s ease; }
         .hero:hover .hero__bg { transform: scale(1); }
@@ -197,7 +205,6 @@ const Home = () => {
         .hero__cta { display: flex; gap: var(--space-md); flex-wrap: wrap; }
         .hero__feature-pill { display: inline-flex; align-items: center; gap: 8px; margin-top: var(--space-xl); padding: 0.5rem 1rem; background: rgba(76,175,125,0.1); border: 1px solid rgba(76,175,125,0.25); border-radius: var(--radius-full); font-size: 0.78rem; color: var(--color-text-muted); }
 
-        /* Problem/Solution */
         .problem-section { background: var(--color-bg-elevated); }
         .problem-cards { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--space-xl); }
         .problem-card { padding: var(--space-xl); border-radius: var(--radius-lg); }
@@ -210,20 +217,17 @@ const Home = () => {
         .problem-card li::before { content: '—'; position: absolute; left: 0; color: var(--color-text-faint); }
         .problem-divider { font-family: var(--font-serif); font-size: 1.5rem; color: var(--color-primary); font-style: italic; white-space: nowrap; }
 
-        /* Chef */
         .chef-section { background: var(--color-bg-elevated); }
         .chef-inner { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3xl); align-items: center; }
         .chef-image-wrap { border-radius: var(--radius-lg); overflow: hidden; }
         .chef-image { width: 100%; height: 480px; object-fit: cover; }
         .chef-bio { font-size: 1rem; color: var(--color-text-muted); line-height: 1.8; }
 
-        /* Review card */
         .review-card__inner { padding: var(--space-xl); display: flex; flex-direction: column; gap: var(--space-md); }
         .review-card__comment { font-family: var(--font-serif); font-size: 1rem; font-style: italic; color: var(--color-text-muted); line-height: 1.7; flex: 1; }
         .review-card__author { display: flex; align-items: center; gap: var(--space-sm); font-size: 0.85rem; color: var(--color-text-muted); }
         .review-card__avatar { width: 32px; height: 32px; background: var(--color-primary); color: var(--color-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.8rem; }
 
-        /* CTA section */
         .cta-section { text-align: center; background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-elevated) 100%); }
         .cta-inner { display: flex; flex-direction: column; align-items: center; }
 
