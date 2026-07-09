@@ -1,4 +1,31 @@
+const dns = require('dns').promises;
 const { body, validationResult } = require('express-validator');
+
+const validateEmailDomain = async (email) => {
+  const parts = String(email).split('@');
+  if (parts.length !== 2) {
+    throw new Error('Email address must contain an @ symbol and a valid domain');
+  }
+
+  const domain = parts[1].toLowerCase();
+  try {
+    const mxRecords = await dns.resolveMx(domain);
+    if (mxRecords && mxRecords.length > 0) {
+      return true;
+    }
+  } catch (err) {
+    // fallback to A records if no MX records are found
+  }
+
+  try {
+    const aRecords = await dns.resolve(domain);
+    if (aRecords && aRecords.length > 0) {
+      return true;
+    }
+  } catch (err) {
+    throw new Error('Email domain does not appear to receive mail. Please check for typos or use a different address.');
+  }
+};
 
 const validate = (validations) => {
   return async (req, res, next) => {
@@ -28,9 +55,26 @@ const reservationValidation = [
 
 const userValidation = [
   body('name').isLength({ min: 2, max: 50 }).withMessage('Name must be 2-50 characters'),
-  body('email').isEmail().withMessage('Please provide a valid email'),
+  body('email')
+    .isEmail().withMessage('Please provide a valid email')
+    .bail()
+    .custom(async (value) => validateEmailDomain(value)),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-  body('phone').matches(/^[0-9]{10}$/).withMessage('Please provide a valid 10-digit phone number')
+  body('phone')
+    .matches(/^[0-9]{10}$/).withMessage('Please provide a valid 10-digit phone number')
+    .bail()
+    .custom((value) => {
+      const invalidNumbers = ['0000000000', '1111111111', '1234567890', '9999999999'];
+      if (invalidNumbers.includes(value)) {
+        throw new Error('Please enter a real mobile number');
+      }
+      return true;
+    })
 ];
 
-module.exports = { validate, reservationValidation, userValidation };
+const loginValidation = [
+  body('email').isEmail().withMessage('Please provide a valid email'),
+  body('password').notEmpty().withMessage('Password is required')
+];
+
+module.exports = { validate, reservationValidation, userValidation, loginValidation };

@@ -15,15 +15,41 @@ const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [feedback, setFeedback] = useState({ email: '', phone: '' });
 
   const [form, setForm] = useState({
     name: '', email: '', password: '', phone: '',
     dietaryPreference: 'all', allergenAlerts: []
   });
 
+  const emailPattern = /^\S+@\S+\.\S+$/;
+  const phonePattern = /^[0-9]{10}$/;
+  const invalidPhones = ['0000000000', '1111111111', '1234567890', '9999999999'];
+
   const handleChange = (e) => {
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
     setError('');
+
+    if (name === 'email') {
+      if (!value) {
+        setFeedback((fb) => ({ ...fb, email: '' }));
+      } else if (!emailPattern.test(value)) {
+        setFeedback((fb) => ({ ...fb, email: 'Please enter a valid email address' }));
+      } else {
+        setFeedback((fb) => ({ ...fb, email: 'Looks good — we’ll verify the email domain during registration' }));
+      }
+    }
+
+    if (name === 'phone') {
+      if (!value) {
+        setFeedback((fb) => ({ ...fb, phone: '' }));
+      } else if (!phonePattern.test(value) || invalidPhones.includes(value)) {
+        setFeedback((fb) => ({ ...fb, phone: 'Please enter a valid 10-digit mobile number' }));
+      } else {
+        setFeedback((fb) => ({ ...fb, phone: 'Good phone format — this number helps us confirm your reservation' }));
+      }
+    }
   };
 
   const handleAllergenToggle = (allergen) => {
@@ -39,6 +65,19 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    if (!form.email || !emailPattern.test(form.email)) {
+      setError('Please provide a valid email address before continuing.');
+      setLoading(false);
+      return;
+    }
+
+    if (!isLogin && (!form.phone || !phonePattern.test(form.phone) || invalidPhones.includes(form.phone))) {
+      setError('Please enter a valid mobile number so we can keep your reservation secure.');
+      setLoading(false);
+      return;
+    }
+
     try {
       if (isLogin) {
         await login({ email: form.email, password: form.password });
@@ -97,8 +136,20 @@ const Auth = () => {
             <>
               <div className="form-group">
                 <label className="form-label">Phone</label>
-                <input className="form-input" type="tel" name="phone" placeholder="10-digit mobile number" value={form.phone} onChange={handleChange} required pattern="[0-9]{10}" />
+                <input
+                  className={`form-input ${feedback.phone && !feedback.phone.includes('Good phone format') ? 'invalid' : ''}`}
+                  type="tel"
+                  name="phone"
+                  placeholder="10-digit mobile number"
+                  value={form.phone}
+                  onChange={handleChange}
+                  required
+                  pattern="[0-9]{10}"
+                />
+                {feedback.phone && <p className={`input-hint ${feedback.phone.includes('Good phone format') ? 'valid' : 'invalid'}`}>{feedback.phone}</p>}
               </div>
+
+              <p className="auth-note">We verify email domains and mobile format to reduce invalid reservation requests.</p>
 
               {/* Dietary profile — the differentiator */}
               <div className="form-group">
@@ -132,7 +183,7 @@ const Auth = () => {
             </>
           )}
 
-          {error && <p className="form-error">{error}</p>}
+          {error && <p className="form-error" role="alert" aria-live="assertive">{error}</p>}
 
           <button type="submit" className="btn btn-primary auth-submit" disabled={loading}>
             {loading ? <span className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} /> : isLogin ? 'Sign In' : 'Create Account'}
@@ -176,6 +227,10 @@ const Auth = () => {
         .auth-toggle-btn:hover { opacity: 0.75; }
         .auth-back-link { text-align: center; font-size: 0.78rem; color: var(--color-text-faint); transition: color var(--transition); }
         .auth-back-link:hover { color: var(--color-primary); }
+        .input-hint { margin-top: 0.35rem; font-size: 0.75rem; }
+        .input-hint.valid { color: var(--color-success); }
+        .input-hint.invalid { color: var(--color-error); }
+        .form-input.invalid { border-color: var(--color-error); }
       `}</style>
     </main>
   );

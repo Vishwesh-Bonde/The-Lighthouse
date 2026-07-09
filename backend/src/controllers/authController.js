@@ -51,9 +51,12 @@ exports.register = async (req, res) => {
       }
     });
   } catch (error) {
+    const message = error.message.includes('User validation failed')
+      ? 'Please provide valid registration details and make sure your email and phone are correct.'
+      : 'Unable to create account at the moment. Please try again later.';
     res.status(500).json({
       success: false,
-      error: error.message
+      error: message
     });
   }
 };

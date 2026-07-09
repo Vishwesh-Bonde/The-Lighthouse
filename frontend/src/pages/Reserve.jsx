@@ -58,6 +58,18 @@ const Reserve = () => {
     if (!user) { navigate('/auth'); return; }
     setLoading(true);
     setError('');
+    // Validate user's email before submitting
+    const validateEmail = (email) => {
+      if (!email) return false;
+      const re = /^\S+@\S+\.\S+$/;
+      return re.test(String(email).toLowerCase());
+    };
+
+    if (!validateEmail(user.email)) {
+      setError('Your account email looks invalid. Please update your email in your profile before confirming.');
+      setLoading(false);
+      return;
+    }
     try {
       await createReservation({ date, time: selectedSlot, guests, specialRequests });
       setSuccess(true);
@@ -140,7 +152,7 @@ const Reserve = () => {
                   </Tooltip>
                 </div>
               </div>
-              {error && <p className="form-error">{error}</p>}
+              {error && <p className="form-error" role="alert" aria-live="assertive">{error}</p>}
               <div className="reserve-step__actions">
                 <Tooltip content="Check available time slots for your selected date" position="top">
                   <button className="btn btn-primary" onClick={fetchSlots} disabled={!date || loading}>
@@ -174,7 +186,7 @@ const Reserve = () => {
                   </Tooltip>
                 ))}
               </div>
-              {error && <p className="form-error">{error}</p>}
+              {error && <p className="form-error" role="alert" aria-live="assertive">{error}</p>}
               <div className="reserve-step__actions">
                 <Tooltip content="Go back to select a different date" position="top">
                   <button className="btn btn-ghost" onClick={() => setStep(0)}>← Back</button>
@@ -257,13 +269,19 @@ const Reserve = () => {
                   <textarea className="form-textarea" placeholder="Dietary requirements, occasion, seating preferences..." value={specialRequests} onChange={(e) => setSpecialRequests(e.target.value)} rows={3} />
                 </Tooltip>
               </div>
-              {error && <p className="form-error">{error}</p>}
+              {error && <p className="form-error" role="alert" aria-live="assertive">{error}</p>}
               <div className="reserve-step__actions">
                 <Tooltip content="Go back to view tonight's menu" position="top">
                   <button className="btn btn-ghost" onClick={() => setStep(2)}>← Back</button>
                 </Tooltip>
                 <Tooltip content={user ? "Complete your reservation booking" : "Please sign in first"} position="top">
-                  <button className="btn btn-primary" onClick={handleConfirm} disabled={!user || loading}>
+                  <button
+                    className="btn btn-primary"
+                    onClick={handleConfirm}
+                    disabled={!user || loading}
+                    aria-disabled={!user || loading}
+                    aria-label="Confirm reservation"
+                  >
                     {loading ? <span className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} /> : 'Confirm Reservation ✓'}
                   </button>
                 </Tooltip>
